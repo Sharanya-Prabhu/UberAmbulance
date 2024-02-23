@@ -1,0 +1,144 @@
+@font-face {
+  font-family: 'UberMove';
+  src: url("./fonts/UberMove-Medium.ttf");
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  font-family: UberMove, UberMoveText, system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+nav{
+  background: black;
+  display: flex;
+  height: 52px;
+}
+
+nav div .logo{
+  color:white;
+  font-size: 30px;
+  text-decoration: none;
+  margin-left: 100px;
+}
+
+nav div .userIcon{
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  background-color: rgb(238,238,238);
+  position: absolute;
+  right: 80px;
+  top: 10px;
+}
+
+.home-components{
+  display:flex;
+}
+
+div .card{
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: 40px;
+  left: 100px;
+  bottom: 16px;
+  width: 406px;
+  height: 400px;
+  z-index: 2;
+  border-radius: 12px;
+  border: 2px solid #E2E2E2;
+}
+
+.card-heading{
+  display: block;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 700;
+  box-sizing: border-box;
+  padding: 16px;
+  margin-bottom:12px;
+  padding-bottom:0px;
+}
+
+.user-input{
+  background-color: rgb(238,238,238);
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+  border-radius: 8px;
+  margin:16px;
+  margin-top:0px;
+  padding: 10px;  
+}
+
+input #search-input{
+  background-color: rgb(232, 190, 190);
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+}
+
+.input-icon{
+  display:inline;
+  margin-right: 12px;
+}
+
+.radio-cur-loc{
+  display: flex;
+  flex-direction: row;
+  margin-right: 16px;
+  margin-left: 16px; 
+  margin-bottom: 26px;
+}
+
+input[type="radio"] {
+  margin-right: 8px;
+  width: 2em;
+}
+
+select:required:invalid {
+  color: gray;
+}
+
+option[value=""][disabled] {
+  display: none;
+}
+
+select{
+  border:none;
+  background-color: rgb(192, 179, 179);
+  color: rgb(107, 107, 107);
+  width:300px;
+}
+
+
+.confirm-btn{
+  background-color: rgb(238,238,238);
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 24px;
+  border-radius: 8px;
+  margin:16px;
+  padding: 10px 10px 10px 30px;
+}
+
+.map-component{
+  background: #79a1fd;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: 40px;
+  left: 115px;
+  bottom: 40px;
+  width: 930px;
+  height: 620px;
+  z-index: 2;
+
+}
+
+button{
+  border: none;
+}

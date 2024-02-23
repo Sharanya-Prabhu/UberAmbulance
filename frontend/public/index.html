@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <title>React App</title>
+    <link
+      href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=Function.prototype"></script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+
+    <script>
+      let map;
+      let marker;
+      let markerLat, markerLng;
+      var hospitals = [];
+      var locations = [];
+      var hoslat, hoslng;
+      var directionsRenderer;
+
+      function initMap() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              var pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+              map = new google.maps.Map(document.getElementById("map"), {
+                center: pos,
+                zoom: 14,
+              });
+              marker = new google.maps.Marker({
+                position: pos,
+                map: map,
+              });
+              markerLat = marker.getPosition().lat();
+              markerLng = marker.getPosition().lng();
+              genHospitals();
+            },
+            function () {
+              handleLocationError(true);
+            }
+          );
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false);
+        }
+        initAutocomplete();
+      }
+
+      function handleLocationError(browserHasGeolocation) {
+        var defaultLocation = { lat: 37.7749, lng: -122.4194 };
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: defaultLocation,
+          zoom: 14,
+        });
+        marker = new google.maps.Marker({
+          position: pos,
+          map: map,
+        });
+        markerLat = marker.getPosition().lat();
+        markerLng = marker.getPosition().lng();
+      }
+
+      google.maps.event.addDomListener(window, "load", initMap);
+
+      function initAutocomplete() {
+        var searchInput = "search-input";
+
+        $(document).ready(function () {
+          var autocomplete;
+          autocomplete = new google.maps.places.Autocomplete(
+            document.getElementById(searchInput),
+            {
+              types: ["geocode"],
+            }
+          );
+
+          google.maps.event.addListener(
+            autocomplete,
+            "place_changed",
+            function () {
+              var near_place = autocomplete.getPlace();
+              map.setCenter(near_place.geometry.location);
+              //remove previous marker
+              marker.setMap(null);
+              //remove prevoius directions
+              if (directionsRenderer != null) {
+                directionsRenderer.setMap(null);
+              }
+              //set marker to near_place
+              marker = new google.maps.Marker({
+                position: near_place.geometry.location,
+                map: map,
+              });
+              markerLat = marker.getPosition().lat();
+              markerLng = marker.getPosition().lng();
+              genHospitals();
+            }
+          );
+        });
+      }
+
+      function genHospitals() {
+        var service = new google.maps.places.PlacesService(map);
+        var request = {
+          location: marker.getPosition(),
+          radius: "5000",
+          type: ["hospital"],
+        };
+        service.nearbySearch(request, function (results, status) {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            // Loop through the results and create a list of hospitals
+            hospitals = [];
+            locations = [];
+            for (var i = 0; i < results.length; i++) {
+              hospitals.push(results[i].name);
+              locations.push(results[i].geometry.location);
+            }
+            updateDropdown(hospitals);
+          }
+        });
+      }
+
+      function updateDropdown(hospitals) {
+        var select = document.getElementById("hospital-select");
+        // Clear the current options
+        select.innerHTML = "";
+        for (var i = 0; i < hospitals.length; i++) {
+          var option = document.createElement("option");
+          option.text = hospitals[i];
+          // set the value of the option as json object with hospital's lat and lng
+          option.value = JSON.stringify(locations[i]);
+
+          select.add(option);
+        }
+      }
+
+      const API_KEY = "Enter your API key here";
+      
+      function showPath() {
+        //Remove previous directions
+        if (directionsRenderer != null) {
+          directionsRenderer.setMap(null);
+        }
+
+        var hospitalJsonStr = document.getElementById("hospital-select").value;
+        var hospitalJson = JSON.parse(hospitalJsonStr);
+        hoslat = hospitalJson.lat;
+        hoslng = hospitalJson.lng;
+
+        var directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map);
+
+        var request = {
+          origin: { lat: markerLat, lng: markerLng },
+          destination: { lat: hoslat, lng: hoslng },
+          travelMode: "DRIVING",
+        };
+
+        directionsService.route(request, function (result, status) {
+          if (status === "OK") {
+            directionsRenderer.setDirections(result);
+          }
+        });
+      }
+
+      function currLoc() {
+        initMap();
+        var searchInput = document.getElementById("search-input");
+        searchInput.value = "Current location";
+      }
+
+      window.onload = function () {
+        document
+          .getElementById("hospital-select")
+          .addEventListener("change", showPath);
+        //add event listener to use current location button
+        document
+          .getElementById("use-curr-loc")
+          .addEventListener("click", currLoc);
+      };
+    </script>
+  </body>
+</html>
